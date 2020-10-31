@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,18 @@ import com.atguigu.common.utils.R;
 public class CategoryController {
     @Autowired
     private CategoryService categoryService;
+
+    /**
+     * 查出所有分类及其子分类，并以树形结构展示出来
+     * @return
+     */
+    @RequestMapping("/list/tree")
+    public R listTree() {
+
+        List<CategoryEntity> entities =  categoryService.listWithTree();
+
+        return R.ok().put("data", entities);
+    }
 
     /**
      * 列表
