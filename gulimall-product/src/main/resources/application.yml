@@ -8,13 +8,23 @@ spring:
     nacos:
       discovery:
         server-addr: localhost:8848
+    alicloud:
+      access-key: LTAI4G6sF9bLVPj6dD7X1AfL
+      secret-key: MJok4zr7y3J4AlhdstQlGnRZmSopj7
+      oss:
+        endpoint: oss-cn-shenzhen.aliyuncs.com
   application:
     name: gulimall-product
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
     db-config:
-      id-type: auto
+      id-type: auto #自增
+      logic-delete-value: 1
+      logic-not-delete-value: 0
 
 server:
   port: 10000
+logging:
+  level:
+    com.atguigu.gulimall: debug
