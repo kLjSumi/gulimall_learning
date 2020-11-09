@@ -50,7 +50,7 @@ public class OssController {
         Map<String, String> respMap = new LinkedHashMap<String, String>();
 
         try {
-            long expireTime = 30;
+            long expireTime = 60;
             long expireEndTime = System.currentTimeMillis() + expireTime * 1000;
             Date expiration = new Date(expireEndTime);
             // PostObject请求最大可支持的文件大小为5 GB，即CONTENT_LENGTH_RANGE为5*1024*1024*1024。
