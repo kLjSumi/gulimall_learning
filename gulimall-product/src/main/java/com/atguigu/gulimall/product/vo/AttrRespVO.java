@@ -3,6 +3,8 @@ package com.atguigu.gulimall.product.vo;
 import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author kLjSumi
  * @Date 2020/11/10
@@ -56,7 +58,7 @@ public class AttrRespVO {
     private Long attrGroupId;
 
     /**
-     * 分类名字(手机)
+     * 三级分类名字(手机)
      */
     private String catelogName;
 
@@ -64,4 +66,9 @@ public class AttrRespVO {
      * 属性分组名字(屏幕)
      */
     private String groupName;
+
+    /**
+     * 三级分类路径
+     */
+    private Long[] catelogPath;
 }
