@@ -1,7 +1,14 @@
 package com.atguigu.gulimall.product.service.impl;
 
+import com.atguigu.gulimall.product.vo.AttrGroupRelationVO;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -24,6 +31,28 @@ public class AttrAttrgroupRelationServiceImpl extends ServiceImpl<AttrAttrgroupR
         );
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public void deleteRelation(AttrGroupRelationVO[] vos) {
+        List<AttrAttrgroupRelationEntity> relationEntities = Arrays.asList(vos).stream().map(vo -> {
+            AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+            BeanUtils.copyProperties(vo, relationEntity);
+            return relationEntity;
+        }).collect(Collectors.toList());
+        baseMapper.deleteBatchRelation(relationEntities);
+    }
+
+    @Override
+    public void saveBatch(List<AttrGroupRelationVO> vos) {
+
+        List<AttrAttrgroupRelationEntity> collect = vos.stream().map(item -> {
+            AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
+            BeanUtils.copyProperties(item, relationEntity);
+            return relationEntity;
+        }).collect(Collectors.toList());
+
+        this.saveBatch(collect);
     }
 
 }
