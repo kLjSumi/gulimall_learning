@@ -27,3 +27,9 @@ logging:
   level:
     com.atguigu.gulimall: debug
 
+
+    com:
+      alibaba:
+        nacos:
+          client:
+            naming: error
