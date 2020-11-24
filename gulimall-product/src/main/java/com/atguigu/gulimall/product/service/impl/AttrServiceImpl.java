@@ -282,4 +282,10 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         return pageUtils;
     }
 
+    @Override
+    public List<Long> selectSearchAttrs(List<Long> attrIds) {
+        List<Long> list = baseMapper.selectSearchAttrs(attrIds);
+        return list;
+    }
+
 }

@@ -16,7 +16,7 @@ import java.util.Map;
  * @Date 2020/11/4
  */
 @Slf4j
-@RestControllerAdvice(basePackages = "com.atguigu.gulimall.product.controller")
+@RestControllerAdvice(basePackages = "com.atguigu.gulimall.product.app")
 public class GulimallControllerAdvice {
 
     @ExceptionHandler(value = org.springframework.web.bind.MethodArgumentNotValidException.class)
