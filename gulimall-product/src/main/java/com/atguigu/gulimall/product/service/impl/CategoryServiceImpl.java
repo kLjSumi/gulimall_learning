@@ -1,6 +1,7 @@
 package com.atguigu.gulimall.product.service.impl;
 
 import com.atguigu.gulimall.product.service.CategoryBrandRelationService;
+import com.atguigu.gulimall.product.vo.Catalog2Vo;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -86,6 +87,49 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         if (!StringUtils.isEmpty(category.getName())) {
             categoryBrandRelationService.updateCategory(category.getCatId(), category.getName());
         }
+    }
+
+    @Override
+    public List<CategoryEntity> getLevel1Category() {
+
+        List<CategoryEntity> entities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
+        return entities;
+    }
+
+    @Override
+    public Map<String, List<Catalog2Vo>> getCatalogJson() {
+
+        /**
+         * 将数据库的多次查询变为一次
+         */
+        List<CategoryEntity> entities1 = baseMapper.selectList(null);
+        //1、查出所有一级分类
+        List<CategoryEntity> level1Category = getLevel1Category();
+        Map<String, List<Catalog2Vo>> result = level1Category.stream().collect(Collectors.toMap(k -> k.getCatId().toString(), v -> {
+            //遍历每一个一级分类，查找二级分类
+            List<CategoryEntity> entities = getParent_cid(v);
+            List<Catalog2Vo> collect = null;
+            if (entities != null && entities.size() != 0) {
+                collect = entities.stream().map(item -> {
+                    List<CategoryEntity> level3 = getParent_cid(item);
+                    //查找三级分类
+                    List<Catalog2Vo.Catalog3Vo> collectLevel3 = level3.stream().map(l3 -> {
+                        Catalog2Vo.Catalog3Vo catalog3Vo = new Catalog2Vo.Catalog3Vo(item.getCatId().toString(), l3.getCatId().toString(), l3.getName());
+                        return catalog3Vo;
+                    }).collect(Collectors.toList());
+
+                    Catalog2Vo catalog2Vo = new Catalog2Vo(v.getCatId().toString(), collectLevel3, item.getCatId().toString(), item.getName());
+                    return catalog2Vo;
+                }).collect(Collectors.toList());
+            }
+            return collect;
+        }));
+        return result;
+    }
+
+    //TODO 完善该方法
+    private List<CategoryEntity> getParent_cid(CategoryEntity v) {
+        return baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", v.getCatId()));
     }
 
     private List<Long> findParentPath(Long catelogId, List<Long> path) {
