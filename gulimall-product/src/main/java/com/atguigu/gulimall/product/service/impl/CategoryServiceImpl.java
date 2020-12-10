@@ -8,6 +8,8 @@ import com.mysql.cj.util.TimeUtil;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -94,6 +96,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      *
      * @param category
      */
+    @CacheEvict(value = "category", key = "getLevel1Category")
     @Transactional
     @Override
     public void updateCascade(CategoryEntity category) {
@@ -103,9 +106,11 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
         }
     }
 
+    //每一个需要缓存的数据我们都来指定要放到哪一个名字的缓存，（缓存的分区）
+    @Cacheable(value = {"category"}, key = "#root.method.name")  //代表当前方法的结果需要缓存，如果缓存中有，方法不调用。如果缓存中没有，会调用方法，最后将方法的返回值保存进缓存中
     @Override
     public List<CategoryEntity> getLevel1Category() {
-
+        System.out.println("添加缓存");
         List<CategoryEntity> entities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
         return entities;
     }
@@ -114,7 +119,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     //springboot2.0以后默认使用lettuce作为操作redis客户端，它使用netty进行网络通信
     //lettuce的bug导致netty堆外内存溢出 -Xmx100m netty如果没有指定堆外内存，默认只用这个
     //可以通过-Dio.netty.maxDirectMemory进行设置（不太行）
-
     /**
      * 1、空结果缓存：解决缓存穿透
      * 2、设置过期时间（加随机值）：解决缓存雪崩
@@ -122,6 +126,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      *
      * @return
      */
+//    @Cacheable({"catalogJson"})
     @Override
     public Map<String, List<Catalog2Vo>> getCatalogJson() {
         // 加入缓存逻辑, 缓存中存的数据是json字符串
@@ -232,7 +237,15 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
     public Map<String, List<Catalog2Vo>> getCatalogJsonFromDB() {
+        //得到锁以后，我们应该再去缓存中确定一次，如果没有才需要继续查询
+        String catalogJson = stringRedisTemplate.opsForValue().get("catalogJson");
+        if (!StringUtils.isEmpty(catalogJson)) {
+            //缓存不为空直接返回
+            Map<String, List<Catalog2Vo>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catalog2Vo>>>() {
+            });
 
+            return result;
+        }
         /**
          * 将数据库的多次查询变为一次
          */
@@ -259,7 +272,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
             }
             return collect;
         }));
-
+        String s = JSON.toJSONString(result);
+        stringRedisTemplate.opsForValue().set("catalogJson", s, 1, TimeUnit.DAYS);
 
         return result;
     }

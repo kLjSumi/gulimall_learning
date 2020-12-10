@@ -16,7 +16,10 @@ spring:
     cache: false
   redis:
     host: 192.168.56.100
-
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
