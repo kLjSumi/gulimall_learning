@@ -31,8 +31,7 @@ public class MyCacheConfig {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(new GenericJackson2JsonRedisSerializer()))
-                .entryTtl(Duration.ofMillis(3600000))
-                .prefixCacheNameWith("CACHE_");
+                .entryTtl(Duration.ofMillis(3600000));
 
         return config;
     }

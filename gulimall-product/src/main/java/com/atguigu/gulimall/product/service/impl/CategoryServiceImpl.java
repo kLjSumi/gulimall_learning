@@ -10,6 +10,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
@@ -96,7 +97,10 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      *
      * @param category
      */
-    @CacheEvict(value = "category", key = "getLevel1Category")
+    @Caching(evict = {
+            @CacheEvict(value = "category", key = "'getLevel1Category'"),
+            @CacheEvict(value = "category", key = "'getCatalogJson'")
+    })
     @Transactional
     @Override
     public void updateCascade(CategoryEntity category) {
@@ -110,7 +114,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     @Cacheable(value = {"category"}, key = "#root.method.name")  //代表当前方法的结果需要缓存，如果缓存中有，方法不调用。如果缓存中没有，会调用方法，最后将方法的返回值保存进缓存中
     @Override
     public List<CategoryEntity> getLevel1Category() {
-        System.out.println("添加缓存");
+//        System.out.println("添加缓存");
         List<CategoryEntity> entities = baseMapper.selectList(new QueryWrapper<CategoryEntity>().eq("parent_cid", 0));
         return entities;
     }
@@ -126,7 +130,7 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
      *
      * @return
      */
-//    @Cacheable({"catalogJson"})
+    @Cacheable(value = {"category"}, key = "#root.method.name")
     @Override
     public Map<String, List<Catalog2Vo>> getCatalogJson() {
         // 加入缓存逻辑, 缓存中存的数据是json字符串
@@ -237,15 +241,6 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryDao, CategoryEntity
     }
 
     public Map<String, List<Catalog2Vo>> getCatalogJsonFromDB() {
-        //得到锁以后，我们应该再去缓存中确定一次，如果没有才需要继续查询
-        String catalogJson = stringRedisTemplate.opsForValue().get("catalogJson");
-        if (!StringUtils.isEmpty(catalogJson)) {
-            //缓存不为空直接返回
-            Map<String, List<Catalog2Vo>> result = JSON.parseObject(catalogJson, new TypeReference<Map<String, List<Catalog2Vo>>>() {
-            });
-
-            return result;
-        }
         /**
          * 将数据库的多次查询变为一次
          */
