@@ -26,6 +26,7 @@ public class SearchResult {
      */
     private Long total;
     private Integer totalPages; //总页码数
+    private List<Integer> pageNavs;
 
     /**
      * 聚合信息

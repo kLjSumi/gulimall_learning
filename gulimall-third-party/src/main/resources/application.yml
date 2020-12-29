@@ -8,6 +8,12 @@ spring:
       secret-key: r75KEHZNDykKSRABQvuBJFMMCGb0jg
       oss:
         endpoint: oss-cn-shenzhen.aliyuncs.com
+      sms:
+        host: https://gyytz.market.alicloudapi.com
+        path: /sms/smsSend
+        appcode: 5a599b5132c4434a8dfe7cee11284720
+        template-id: f5e68c3ad6b6474faa8cd178b21d3377
+        sms-sign-id: 2e65b1bb3d054466b82f0c9d125465e2
   application:
     name: gulimall-third-party
 
