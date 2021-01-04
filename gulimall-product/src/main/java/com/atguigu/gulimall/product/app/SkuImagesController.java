@@ -30,6 +30,7 @@ public class SkuImagesController {
     @Autowired
     private SkuImagesService skuImagesService;
 
+
     /**
      * 列表
      */

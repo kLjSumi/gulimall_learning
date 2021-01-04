@@ -7,5 +7,9 @@ spring:
         server-addr: localhost:8848
   thymeleaf:
     cache: false
+  session:
+    store-type: redis
+  redis:
+    host: 192.168.56.100
 server:
   port: 20000

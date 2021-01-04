@@ -20,6 +20,8 @@ spring:
     type: redis
     redis:
       time-to-live: 3600000
+  session:
+    store-type: redis
 mybatis-plus:
   mapper-locations: classpath:/mapper/**/*.xml
   global-config:
@@ -27,6 +29,7 @@ mybatis-plus:
       id-type: auto #自增
       logic-delete-value: 1
       logic-not-delete-value: 0
+
 
 server:
   port: 10000

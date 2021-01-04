@@ -4,6 +4,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.atguigu.common.constant.AuthServerConstant;
 import com.atguigu.common.exception.BizCodeEnum;
 import com.atguigu.common.utils.R;
+import com.atguigu.common.vo.MemberRespVo;
 import com.atguigu.gulimall.auth.feign.MemberFeignService;
 import com.atguigu.gulimall.auth.feign.ThirdPartyFeignService;
 import com.atguigu.gulimall.auth.vo.UserLoginVo;
@@ -18,6 +19,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
@@ -121,10 +123,33 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public String login(UserLoginVo vo) {
+    public String login(UserLoginVo vo, RedirectAttributes attributes, HttpSession session) {
 
         //远程登录
+        R r = memberFeignService.login(vo);
+        if (r.getCode() == 0) {
+            MemberRespVo data = r.getData(new TypeReference<MemberRespVo>() {
+            });
+            System.out.println(data);
+            session.setAttribute(AuthServerConstant.LOGIN_USER, data);
+            return "redirect:http://gulimall.com";
+        } else {
+            Map<String,String> errors = new HashMap<>();
+            errors.put("msg", r.getData("msg", new TypeReference<String>(){}));
+            attributes.addFlashAttribute("errors", errors);
+            return "redirect:http://auth.gulimall.com/login.html";
+        }
 
-        return "redirect:http://gulimall.com";
+    }
+
+    @GetMapping("/login.html")
+    public String loginPage(HttpSession session) {
+        Object attribute = session.getAttribute(AuthServerConstant.LOGIN_USER);
+        if (attribute == null) {
+            //没登录
+            return "login";
+        } else {
+            return "redirect:http://gulimall.com";
+        }
     }
 }
