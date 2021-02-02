@@ -254,10 +254,11 @@
 									</div>
 								</form>
 							</div>
-							<div id="cartBtn"  style="cursor:pointer;"  canClick="1"  onclick="addToCart(this)" class="box-btns-two">
-
-								放入购物车
-
+							<div class="box-btns-two"
+								 th:if="${item.seckillSkuVo == null }">
+								<a class="addToCart" href="#" th:attr="skuId=${item.info.skuId}">
+									加入购物车
+								</a>
 							</div>
 						</div>
 
@@ -520,13 +521,12 @@
 	<script src="/static/item./js/jquery1.9.js" type="text/javascript" charset="utf-8"></script>
 	<script src="/static/item./js/js.js" type="text/javascript" charset="utf-8"></script>
 	<script type="text/javascript">
-        function addToCart(obj){
-            var canClick = $(obj).attr("canClick");
-            if(canClick=='0'){
-                return ;
-            }
-            $("#itemForm").submit();
-        }
+		$(".addToCart").click(function () {
+			let skuId = $(this).attr("skuId");
+			let num = $("#productNum").val();
+			location.href = "http://cart.gulimall.com/addCartItem?skuId=" + skuId + "&num=" + num;
+			return false;
+		});
 
         function switchSkuId() {
             // 被选中属性

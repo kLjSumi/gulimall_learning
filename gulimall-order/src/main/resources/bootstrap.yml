@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: gulimall-order
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:8848
+        namespace: 16dcfeaa-125a-4775-b4b7-de9d36f8847e
